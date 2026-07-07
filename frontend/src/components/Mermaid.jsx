@@ -34,7 +34,7 @@ export default function Mermaid({ chart }) {
   return (
     <div 
       ref={ref} 
-      className="mermaid flex justify-center py-6 overflow-x-auto bg-[#0D1117] rounded-xl border border-border my-4" 
+      className="mermaid flex justify-center py-6 overflow-x-auto bg-background rounded-xl border border-border my-4" 
     />
   );
 }

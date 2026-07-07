@@ -147,29 +147,30 @@ export default function Dashboard() {
             <CodeInput onSubmit={handleCodeSubmit} isLoading={isTyping} />
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-            <button className="action-button flex items-center px-4 py-2 rounded-full border border-border text-sm font-medium text-primary-text hover:bg-[#2A2B32] transition-colors bg-transparent">
+            <button className="action-button flex items-center px-4 py-2 rounded-full border border-border text-sm font-medium text-primary-text hover:bg-surface-hover hover:-translate-y-0.5 transition-all duration-200 bg-transparent">
               <Code className="mr-2 text-secondary-text" size={16} /> Analyze Complexity
             </button>
-            <button className="action-button flex items-center px-4 py-2 rounded-full border border-border text-sm font-medium text-primary-text hover:bg-[#2A2B32] transition-colors bg-transparent">
+            <button className="action-button flex items-center px-4 py-2 rounded-full border border-border text-sm font-medium text-primary-text hover:bg-surface-hover hover:-translate-y-0.5 transition-all duration-200 bg-transparent">
               <Bug className="mr-2 text-secondary-text" size={16} /> Find Bugs
             </button>
-            <button className="action-button flex items-center px-4 py-2 rounded-full border border-border text-sm font-medium text-primary-text hover:bg-[#2A2B32] transition-colors bg-transparent">
+            <button className="action-button flex items-center px-4 py-2 rounded-full border border-border text-sm font-medium text-primary-text hover:bg-surface-hover hover:-translate-y-0.5 transition-all duration-200 bg-transparent">
               <Wrench className="mr-2 text-secondary-text" size={16} /> Refactor Code
             </button>
           </div>
         </div>
       ) : (
-        <div className="relative flex flex-col h-full w-full overflow-hidden">
+        <div className="flex flex-col h-full w-full relative overflow-hidden">
           <div 
-            className="flex-1 overflow-y-auto pt-8 pb-40 scrollbar-thin" 
+            className="absolute inset-0 overflow-y-scroll overscroll-y-none scrollbar-thin" 
             ref={containerRef}
             onScroll={handleScroll}
           >
-            <div className="max-w-3xl mx-auto w-full px-4 space-y-8">
+            <div className="pt-8 pb-40">
+              <div className="max-w-3xl mx-auto w-full px-4 space-y-8">
               {messages.map((msg, index) => (
                 <div key={index} className="flex flex-col">
                   {msg.type === 'user' ? (
-                    <div className="self-end bg-[#2F2F2F] px-5 py-3.5 rounded-3xl rounded-tr-sm max-w-[85%] text-primary-text shadow-sm">
+                    <div className="self-end bg-surface px-5 py-3.5 rounded-3xl rounded-tr-sm max-w-[85%] text-primary-text shadow-sm">
                       {msg.isCode ? (
                         <pre className="text-sm font-mono whitespace-pre-wrap">{msg.content}</pre>
                       ) : (
@@ -191,44 +192,46 @@ export default function Dashboard() {
               <div ref={messagesEndRef} className="h-4" />
             </div>
           </div>
+        </div>
 
-          <div className="absolute bottom-0 left-0 w-full pt-10 pb-6 bg-gradient-to-t from-background via-background to-transparent z-10 pointer-events-none">
+        {/* Footer avoids covering the 14px scrollbar on the right */}
+        <div className="absolute bottom-0 left-0 right-[14px] pt-10 pb-6 bg-gradient-to-t from-background via-background to-transparent z-10 pointer-events-none">
             <div className="max-w-3xl mx-auto px-4 relative pointer-events-auto">
               {showScrollButton && (
                 <button 
                   onClick={scrollToBottom}
-                  className="absolute -top-14 left-1/2 -translate-x-1/2 p-2 bg-[#2F2F2F] border border-border rounded-full text-secondary-text hover:text-primary-text transition-colors shadow-lg z-20"
+                  className="absolute -top-14 left-1/2 -translate-x-1/2 p-2 bg-surface border border-border rounded-full text-secondary-text hover:text-primary-text transition-colors shadow-lg z-20"
                 >
                   <ArrowDown size={16} />
                 </button>
               )}
               
-              <div className="relative flex items-center bg-[#2F2F2F] rounded-full shadow-md">
+              <div className="relative flex items-center bg-surface rounded-full shadow-md">
                 <Popover>
                   <PopoverTrigger className="pl-4 pr-3 py-3 text-secondary-text hover:text-primary-text transition-colors cursor-pointer outline-none flex items-center justify-center">
-                    <div className="p-1 rounded-full bg-[#161B22] border border-border flex items-center justify-center shadow-sm">
+                    <div className="p-1 rounded-full bg-sidebar border border-border flex items-center justify-center shadow-sm">
                       <Plus size={18} strokeWidth={2.5} />
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent side="top" align="start" sideOffset={12} className="w-56 bg-[#2F2F2F] border-border text-primary-text shadow-xl p-1.5 rounded-xl">
+                  <PopoverContent side="top" align="start" sideOffset={12} className="w-56 bg-surface border-border text-primary-text shadow-xl p-1.5 rounded-xl">
                     <button
                       type="button"
                       onClick={() => handleVisualizeCode()}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#3E3E3E] rounded-md transition-colors flex items-center space-x-3"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-surface-hover rounded-md transition-colors flex items-center space-x-3"
                     >
                       <Code size={16} className="text-accent" />
                       <span>Generate Diagram</span>
                     </button>
                     <button
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#3E3E3E] rounded-md transition-colors flex items-center space-x-3"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-surface-hover rounded-md transition-colors flex items-center space-x-3"
                     >
                       <Bug size={16} className="text-secondary-text" />
                       <span>Find Deep Bugs</span>
                     </button>
                     <button
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#3E3E3E] rounded-md transition-colors flex items-center space-x-3"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-surface-hover rounded-md transition-colors flex items-center space-x-3"
                     >
                       <Wrench size={16} className="text-secondary-text" />
                       <span>Refactor</span>

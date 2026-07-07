@@ -16,8 +16,8 @@ export default function CodeInput({ onSubmit, isLoading }) {
   }
 
   return (
-    <div className="flex flex-col border border-border rounded-xl bg-[#1C2128] overflow-hidden shadow-lg w-full">
-      <div className="flex items-center justify-between p-2 border-b border-border bg-[#161B22]">
+    <div className="flex flex-col border border-border rounded-xl bg-cards overflow-hidden shadow-lg w-full transition-all duration-300 focus-within:ring-2 focus-within:ring-accent/50 focus-within:border-accent">
+      <div className="flex items-center justify-between p-2 border-b border-border bg-sidebar">
         <div className="flex items-center space-x-2">
           <Select value={language} onValueChange={setLanguage}>
             <SelectTrigger className="w-[140px] h-8 bg-background border-border text-primary-text focus:ring-accent">
