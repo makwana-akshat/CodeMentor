@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     
     # AI (Gemini)
     GEMINI_API_KEY: str = ""
+    AI_MODEL_NAME: str = "gemini-2.5-pro"
+    AI_TEMPERATURE: float = 0.7
+    AI_TOP_P: float = 0.95
+    AI_MAX_TOKENS: int = 2048
+    AI_RETRY_COUNT: int = 3
+    AI_TIMEOUT_SECONDS: int = 30
     
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
