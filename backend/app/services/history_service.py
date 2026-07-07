@@ -1,24 +1,34 @@
+from app.database.repositories.repositories import ConversationRepository, SnippetRepository, ExplanationRepository, ChatRepository
+
 class HistoryService:
     def __init__(self):
-        pass
+        self.conversation_repo = ConversationRepository()
+        self.snippet_repo = SnippetRepository()
+        self.explanation_repo = ExplanationRepository()
+        self.chat_repo = ChatRepository()
 
     async def get_user_history(self, user_id: str) -> list:
         """
-        Placeholder method to get user history.
+        Returns all conversations for a user.
         """
-        return [
-            {
-                "id": "mock_id_1",
-                "title": "Mock Snippet Explanation",
-                "created_at": "2026-01-01T00:00:00Z"
-            }
-        ]
+        conversations = self.conversation_repo.list(filters={"user_id": user_id})
+        return conversations
 
     async def get_conversation(self, conversation_id: str) -> dict:
         """
-        Placeholder for fetching a specific conversation.
+        Returns the full context of a conversation.
         """
+        conversation = self.conversation_repo.get_by_id(conversation_id)
+        if not conversation:
+            return None
+            
+        snippets = self.snippet_repo.list(filters={"conversation_id": conversation_id}, order_by="created_at", ascending=True)
+        explanations = self.explanation_repo.list(filters={"conversation_id": conversation_id}, order_by="created_at", ascending=True)
+        chat_history = self.chat_repo.list(filters={"conversation_id": conversation_id}, order_by="created_at", ascending=True)
+        
         return {
-            "id": conversation_id,
-            "messages": []
+            "conversation": conversation,
+            "snippets": snippets,
+            "explanations": explanations,
+            "chat_history": chat_history
         }
