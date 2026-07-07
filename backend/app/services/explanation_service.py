@@ -3,11 +3,11 @@ from app.ai.tools.language_detector import LanguageDetector
 from app.ai.tools.library_detector import LibraryDetector
 from app.schemas.responses import ExplainResponse
 from app.core.exceptions import AppException
-from app.database.repositories.repositories import SnippetRepository, ExplanationRepository
-from app.database.repositories.repositories import ConversationRepository
+from app.database.repositories.repositories import SnippetRepository, ExplanationRepository, ConversationRepository
 import logging
 import uuid
-from datetime import datetime
+import asyncio
+from app.services.conversation_service import ConversationService
 
 logger = logging.getLogger(__name__)
 
@@ -69,13 +69,18 @@ class ExplanationService:
                         "explanation_level": level,
                         "summary": result.summary,
                         "line_by_line": result.line_by_line,
-                        "documentation": result.documentation,
-                        "bugs": result.bugs,
-                        "complexity": result.complexity,
-                        "analogy": result.analogy
+                        "documentation": getattr(result, "documentation", ""),
+                        "bugs": getattr(result, "bugs", ""),
+                        "complexity": getattr(result, "complexity", ""),
+                        "analogy": getattr(result, "analogy", "")
                     }
                     self.explanation_repo.create(explanation_data)
                     logger.info("Explanation saved to Database successfully.")
+                    
+                    # 4. Trigger auto-titling in the background
+                    conv_service = ConversationService()
+                    asyncio.create_task(conv_service.generate_auto_title(conv["id"], code))
+                    
                 except Exception as db_err:
                     logger.error(f"Failed to save explanation to Database: {db_err}")
             

@@ -25,10 +25,20 @@ class ExplainResponse(BaseModel):
     analogy: str
 
 class ChatResponse(BaseModel):
-    reply: str
-    context_used: bool
+    answer: str
+    conversation_id: str
 
-class HistoryResponse(BaseModel):
+class MessageModel(BaseModel):
     id: str
-    title: str
+    conversation_id: str
+    role: str
+    message: str
     created_at: str
+
+class ConversationResponse(BaseModel):
+    id: str
+    title: Optional[str] = None
+    created_at: str
+    snippet: Optional[dict] = None
+    explanation: Optional[dict] = None
+    messages: list[MessageModel] = []

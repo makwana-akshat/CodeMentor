@@ -2,19 +2,19 @@ from fastapi import APIRouter, Depends
 from app.schemas.requests import ChatRequest
 from app.schemas.responses import ApiResponse, ChatResponse
 from app.services.chat_service import ChatService
-from app.dependencies.services import get_chat_service
-from app.core.auth import get_current_user
+from app.api.auth import verify_clerk_token
 
 router = APIRouter()
+chat_service = ChatService()
 
 @router.post("/", response_model=ApiResponse[ChatResponse])
 async def follow_up_chat(
     request: ChatRequest,
-    service: ChatService = Depends(get_chat_service),
-    current_user: dict = Depends(get_current_user)
+    user_id: str = Depends(verify_clerk_token)
 ):
-    result = await service.follow_up_question(
-        snippet_id=request.snippet_id,
+    result = await chat_service.follow_up_question(
+        user_id=user_id,
+        conversation_id=request.conversation_id,
         message=request.message
     )
     return ApiResponse(
