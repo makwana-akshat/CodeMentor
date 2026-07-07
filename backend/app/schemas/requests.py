@@ -7,7 +7,7 @@ class ExplainRequest(BaseModel):
     level: str = Field(default="Intermediate", description="Explanation level: Beginner, Intermediate, Expert")
 
 class ChatRequest(BaseModel):
-    snippet_id: str = Field(..., description="The ID of the saved code snippet")
+    conversation_id: str = Field(..., description="The ID of the conversation")
     message: str = Field(..., description="The follow-up question")
 
 class HistoryRequest(BaseModel):

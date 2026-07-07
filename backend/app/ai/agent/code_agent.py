@@ -77,3 +77,29 @@ class CodeAgent:
         except Exception as e:
             logger.error(f"CodeAgent analysis failed: {e}")
             raise AIException(f"Analysis failed: {str(e)}")
+
+    async def chat(self, context_block: str, message: str) -> str:
+        """
+        Handles follow-up conversation turns.
+        Accepts the constructed context block (code + explanation + history) and the new user message.
+        """
+        try:
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", "You are an expert AI programming mentor. Use the following context to answer the user's follow-up question. Do not restate the code unless necessary. Be concise, helpful, and accurate.\n\nContext:\n{context_block}"),
+                ("user", "{message}")
+            ])
+            
+            from langchain_core.output_parsers import StrOutputParser
+            chain = prompt | self.llm | StrOutputParser()
+            
+            logger.info("Invoking CodeAgent for chat follow-up")
+            
+            result = await chain.ainvoke({
+                "context_block": context_block,
+                "message": message
+            })
+            
+            return result
+        except Exception as e:
+            logger.error(f"CodeAgent chat failed: {e}")
+            raise AIException(f"Chat failed: {str(e)}")

@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     AI_RETRY_COUNT: int = 3
     AI_TIMEOUT_SECONDS: int = 30
     
+    # Analysis Engine Features
+    ENABLE_DEEP_ANALYSIS: bool = True
+    ENABLE_SECURITY_ANALYSIS: bool = True
+    ENABLE_ARCHITECTURE_ANALYSIS: bool = True
+    ENABLE_COMPLEXITY_ANALYSIS: bool = True
+    
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()

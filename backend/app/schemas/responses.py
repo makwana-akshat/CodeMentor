@@ -16,6 +16,39 @@ class ApiResponse(BaseModel, Generic[T]):
 class EmptyData(BaseModel):
     pass
 
+class BugDetail(BaseModel):
+    type: str
+    severity: str
+    description: str
+    line_number: Optional[int] = None
+    fix: str
+
+class SecurityDetail(BaseModel):
+    vulnerability: str
+    severity: str
+    description: str
+    fix: str
+
+class OptimizationDetail(BaseModel):
+    reason: str
+    expected_improvement: str
+    suggestion: str
+
+class LearningRecommendation(BaseModel):
+    topic: str
+    explanation: str
+
+class AnalysisResults(BaseModel):
+    bugs: list[BugDetail] = Field(default_factory=list)
+    time_complexity: dict = Field(default_factory=dict)
+    space_complexity: dict = Field(default_factory=dict)
+    best_practices: list[str] = Field(default_factory=list)
+    code_smells: list[str] = Field(default_factory=list)
+    security: list[SecurityDetail] = Field(default_factory=list)
+    optimizations: list[OptimizationDetail] = Field(default_factory=list)
+    execution_flow: list[str] = Field(default_factory=list)
+    learning_recommendations: list[LearningRecommendation] = Field(default_factory=list)
+
 class ExplainResponse(BaseModel):
     summary: str
     line_by_line: list[dict]
@@ -23,12 +56,23 @@ class ExplainResponse(BaseModel):
     complexity: str
     best_practices: list[str]
     analogy: str
+    analysis_results: Optional[AnalysisResults] = None
 
 class ChatResponse(BaseModel):
-    reply: str
-    context_used: bool
+    answer: str
+    conversation_id: str
 
-class HistoryResponse(BaseModel):
+class MessageModel(BaseModel):
     id: str
-    title: str
+    conversation_id: str
+    role: str
+    message: str
     created_at: str
+
+class ConversationResponse(BaseModel):
+    id: str
+    title: Optional[str] = None
+    created_at: str
+    snippet: Optional[dict] = None
+    explanation: Optional[dict] = None
+    messages: list[MessageModel] = []
