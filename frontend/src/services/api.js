@@ -9,29 +9,44 @@ const apiClient = axios.create({
   },
 });
 
-// Create a configured instance that requires a token
-export const createApiClient = (getToken) => {
-  const instance = axios.create({
-    baseURL: `${API_BASE_URL}/api`,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  instance.interceptors.request.use(async (config) => {
-    const token = await getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+// Request interceptor to automatically attach the Clerk JWT token
+apiClient.interceptors.request.use(async (config) => {
+  // window.Clerk is injected by the ClerkProvider
+  if (window.Clerk && window.Clerk.session) {
+    try {
+      const token = await window.Clerk.session.getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error("Error fetching Clerk token:", error);
     }
-    return config;
-  });
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
+// Response interceptor for unified error handling
+apiClient.interceptors.response.use((response) => {
+  return response;
+}, (error) => {
+  if (error.response && error.response.status === 401) {
+    console.error("Unauthorized access or expired token.");
+    // Optionally trigger a logout or redirect here if needed
+  }
+  return Promise.reject(error);
+});
+
+export const createApiClient = () => {
+  // Kept for backwards compatibility if needed, but we recommend using the default exported apiClient directly now.
   return {
-    explainCode: (data) => instance.post('/explain', data),
-    chat: (data) => instance.post('/chat', data),
-    history: () => instance.get('/history'),
-    documentation: (data) => instance.post('/docs', data),
+    explainCode: (data) => apiClient.post('/explain', data),
+    chat: (data) => apiClient.post('/chat', data),
+    history: () => apiClient.get('/history'),
+    documentation: (data) => apiClient.post('/docs', data),
   };
 };
 
 export default apiClient;
+
