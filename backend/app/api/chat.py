@@ -1,23 +1,24 @@
 from fastapi import APIRouter, Depends
-from typing import Dict, Any
+from app.schemas.requests import ChatRequest
+from app.schemas.responses import ApiResponse, ChatResponse
+from app.services.chat_service import ChatService
+from app.dependencies.services import get_chat_service
 from app.core.auth import get_current_user
-from pydantic import BaseModel
 
 router = APIRouter()
 
-class ChatRequest(BaseModel):
-    conversation_id: str
-    message: str
-
-@router.post("/", response_model=Dict[str, Any])
-async def chat(request: ChatRequest, current_user: str = Depends(get_current_user)):
-    """
-    Continue conversation about a code snippet.
-    """
-    # TODO: Integrate Conversation Memory & Gemini Service
-    return {
-        "status": "success",
-        "reply": "This is a placeholder reply to your message.",
-        "user_id": current_user,
-        "conversation_id": request.conversation_id
-    }
+@router.post("/", response_model=ApiResponse[ChatResponse])
+async def follow_up_chat(
+    request: ChatRequest,
+    service: ChatService = Depends(get_chat_service),
+    current_user: dict = Depends(get_current_user)
+):
+    result = await service.follow_up_question(
+        snippet_id=request.snippet_id,
+        message=request.message
+    )
+    return ApiResponse(
+        success=True,
+        message="Reply generated",
+        data=ChatResponse(**result)
+    )

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any
 from pydantic import BaseModel
 from app.core.auth import get_current_user, verify_clerk_token
-from app.database.repositories.users import UserRepository
+from app.database.repositories.repositories import UserRepository
 
 router = APIRouter()
 user_repo = UserRepository()
