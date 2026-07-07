@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar'
 import { Menu } from 'lucide-react'
 
 export default function MainLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768)
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
   return (
@@ -17,7 +17,7 @@ export default function MainLayout() {
         <h1 className="ml-4 font-semibold">CodeMentor AI</h1>
       </div>
 
-      <Sidebar isOpen={isSidebarOpen} close={() => setIsSidebarOpen(false)} />
+      <Sidebar isOpen={isSidebarOpen} close={() => setIsSidebarOpen(false)} toggle={toggleSidebar} />
       
       <main className="flex-1 flex flex-col pt-14 md:pt-0 overflow-hidden relative h-full">
         <Outlet />

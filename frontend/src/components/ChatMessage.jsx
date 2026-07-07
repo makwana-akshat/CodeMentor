@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Check, Copy } from 'lucide-react'
+import Mermaid from './Mermaid'
 
 export default function ChatMessage({ content }) {
   return (
@@ -14,6 +15,9 @@ export default function ChatMessage({ content }) {
             const language = match ? match[1] : 'text'
             const codeString = String(children).replace(/\n$/, '')
             
+            if (!inline && language === 'mermaid') {
+              return <Mermaid chart={codeString} />
+            }
             if (!inline) {
               return <CodeBlock language={language} code={codeString} />
             }
@@ -26,7 +30,7 @@ export default function ChatMessage({ content }) {
           h1: ({ children }) => <h1 className="text-2xl font-bold mt-6 mb-4">{children}</h1>,
           h2: ({ children }) => <h2 className="text-xl font-bold mt-5 mb-3">{children}</h2>,
           h3: ({ children }) => <h3 className="text-lg font-bold mt-4 mb-2">{children}</h3>,
-          p: ({ children }) => <p className="mb-4">{children}</p>,
+          p: ({ children }) => <div className="mb-4">{children}</div>,
           ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>,
           li: ({ children }) => <li>{children}</li>,

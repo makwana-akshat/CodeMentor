@@ -78,6 +78,13 @@
     border-color: theme('colors.border');
     outline-color: theme('colors.accent');
   }
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
   body {
     background-color: theme('colors.background');
     color: theme('colors.primary-text');
