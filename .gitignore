@@ -7,3 +7,9 @@ ENV/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Agent and OpenSpec files
+.agent/
+.agents/
+openspec/
+skills-lock.json
