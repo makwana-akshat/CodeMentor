@@ -4,6 +4,7 @@ from app.ai.tools.library_detector import LibraryDetector
 from app.schemas.responses import ExplainResponse
 from app.core.exceptions import AppException
 from app.database.repositories.repositories import SnippetRepository, ExplanationRepository, ConversationRepository
+from app.analysis.analysis_manager import AnalysisManager
 import logging
 import uuid
 import asyncio
@@ -19,6 +20,7 @@ class ExplanationService:
         self.conversation_repo = ConversationRepository()
         self.snippet_repo = SnippetRepository()
         self.explanation_repo = ExplanationRepository()
+        self.analysis_manager = AnalysisManager()
 
     async def explain_code(self, code: str, language: str, level: str, user_id: str = None) -> dict:
         """
@@ -32,7 +34,7 @@ class ExplanationService:
             
             libraries = self.library_detector.extract_imports(code, language)
             
-            logger.info("Invoking CodeAgent...")
+            logger.info("Invoking CodeAgent for base explanation...")
             result: ExplainResponse = await self.agent.analyze(
                 code=code,
                 level=level,
@@ -40,6 +42,10 @@ class ExplanationService:
                 language=language,
                 libraries=libraries
             )
+            
+            logger.info("Invoking AnalysisManager for deep analysis...")
+            analysis_results = await self.analysis_manager.run_analysis(code, language)
+            result.analysis_results = analysis_results
             
             # Save to database using repositories if user_id is provided
             if user_id:
@@ -72,7 +78,8 @@ class ExplanationService:
                         "documentation": getattr(result, "documentation", ""),
                         "bugs": getattr(result, "bugs", ""),
                         "complexity": getattr(result, "complexity", ""),
-                        "analogy": getattr(result, "analogy", "")
+                        "analogy": getattr(result, "analogy", ""),
+                        "analysis_results": analysis_results.model_dump()
                     }
                     self.explanation_repo.create(explanation_data)
                     logger.info("Explanation saved to Database successfully.")

@@ -22,8 +22,12 @@ class ConversationContextBuilder:
         # 2. Fetch Original Explanation
         explanation = self.explanation_repo.get_by_conversation(user_id, conversation_id)
         explanation_summary = ""
+        analysis_results = ""
         if explanation:
             explanation_summary = explanation.get("summary", "")
+            if explanation.get("analysis_results"):
+                import json
+                analysis_results = json.dumps(explanation.get("analysis_results"), indent=2)
 
         # 3. Fetch Recent Chat History (ordered by created_at DESC)
         # Assuming chat_repo gets them in desc order, we take the last `limit` messages
@@ -39,6 +43,9 @@ class ConversationContextBuilder:
         
         if explanation_summary:
             context_parts.append(f"### Original Explanation ###\n{explanation_summary}\n")
+            
+        if analysis_results:
+            context_parts.append(f"### Code Analysis Results ###\n{analysis_results}\n")
             
         if messages:
             context_parts.append("### Recent Conversation History ###")
