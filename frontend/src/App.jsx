@@ -9,7 +9,6 @@ import AuthLayout from './components/auth/AuthLayout'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 
 // Pages
-import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import History from './pages/History'
 import Settings from './pages/Settings'
@@ -25,9 +24,6 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<MainLayout />}>
-              {/* Public Routes */}
-              <Route index element={<Home />} />
-              
               <Route element={<AuthLayout />}>
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
@@ -35,7 +31,8 @@ export default function App() {
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route index element={<Dashboard />} />
+                <Route path="dashboard" element={<Navigate to="/" replace />} />
                 <Route path="history" element={<History />} />
                 <Route path="settings" element={<Settings />} />
               </Route>

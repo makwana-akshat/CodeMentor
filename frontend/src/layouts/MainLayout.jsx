@@ -1,20 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
-import Footer from '../components/Footer'
+import { Menu } from 'lucide-react'
 
 export default function MainLayout() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      <Navbar />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          <Outlet />
-        </main>
+    <div className="flex h-screen bg-background text-primary-text overflow-hidden">
+      {/* Mobile Top Bar */}
+      <div className="md:hidden absolute top-0 left-0 right-0 h-14 bg-sidebar border-b border-border flex items-center px-4 z-20">
+        <button onClick={toggleSidebar} className="p-2 text-secondary-text hover:text-primary-text">
+          <Menu size={24} />
+        </button>
+        <h1 className="ml-4 font-semibold">CodeMentor AI</h1>
       </div>
-      <Footer />
+
+      <Sidebar isOpen={isSidebarOpen} close={() => setIsSidebarOpen(false)} />
+      
+      <main className="flex-1 flex flex-col pt-14 md:pt-0 overflow-hidden relative h-full">
+        <Outlet />
+      </main>
     </div>
   )
 }

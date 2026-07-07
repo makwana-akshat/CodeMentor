@@ -35,11 +35,11 @@ export const AuthProvider = ({ children }) => {
             }
           });
           
-          setHasSynced(true);
         } catch (error) {
           console.error("Failed to sync user with backend:", error);
         } finally {
           setIsSyncing(false);
+          setHasSynced(true);
         }
       }
     };
