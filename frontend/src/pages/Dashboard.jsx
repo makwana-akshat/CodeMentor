@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import CodeInput from '../components/CodeInput'
-import { dummyAIResponse } from '../utils/dummyData'
+import { dummyAIResponse, dummyAnalysisData } from '../utils/dummyData'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { ArrowUp, ArrowDown, Paperclip, Mic, Loader2, Code, Bug, Wrench, Plus } from 'lucide-react'
+import { ArrowUp, ArrowDown, Paperclip, Mic, Loader2, Code, Bug, Wrench, Plus, FileText } from 'lucide-react'
 import ChatMessage from '../components/ChatMessage'
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover'
 import ChatSkeleton from '../components/ChatSkeleton'
+import AnalysisArtifact from '../components/AnalysisArtifact'
 
 export default function Dashboard() {
   const { chatId } = useParams()
@@ -16,8 +17,12 @@ export default function Dashboard() {
   const [followUp, setFollowUp] = useState('')
   const [isLoadingChat, setIsLoadingChat] = useState(false)
   const [showScrollButton, setShowScrollButton] = useState(false)
+  const [showArtifact, setShowArtifact] = useState(false)
+  const [artifactData, setArtifactData] = useState(null)
   const messagesEndRef = useRef(null)
   const containerRef = useRef(null)
+  const chatColumnRef = useRef(null)
+  const artifactColumnRef = useRef(null)
 
   const startScreenRef = useRef(null)
 
@@ -98,12 +103,26 @@ export default function Dashboard() {
     }
   }, { dependencies: [messages] })
 
+  useGSAP(() => {
+    if (chatColumnRef.current && artifactColumnRef.current) {
+      if (showArtifact) {
+        gsap.to(chatColumnRef.current, { width: '50%', duration: 0.6, ease: 'power3.inOut' })
+        gsap.to(artifactColumnRef.current, { width: '50%', autoAlpha: 1, x: 0, duration: 0.6, ease: 'power3.inOut' })
+      } else {
+        gsap.to(chatColumnRef.current, { width: '100%', duration: 0.6, ease: 'power3.inOut' })
+        gsap.to(artifactColumnRef.current, { width: '0%', autoAlpha: 0, x: 50, duration: 0.6, ease: 'power3.inOut' })
+      }
+    }
+  }, [showArtifact])
+
   const handleCodeSubmit = ({ code, language, level }) => {
     setMessages([...messages, { type: 'user', content: code, isCode: true }])
     setIsTyping(true)
     
     setTimeout(() => {
-      setMessages(prev => [...prev, { type: 'ai', content: dummyAIResponse }])
+      setMessages(prev => [...prev, { type: 'ai', content: dummyAIResponse, hasArtifact: true }])
+      setArtifactData(dummyAnalysisData)
+      setShowArtifact(true)
       setIsTyping(false)
     }, 1500)
   }
@@ -136,6 +155,19 @@ export default function Dashboard() {
     }, 1500)
   }
 
+  const handleAskAI = (query) => {
+    setMessages([...messages, { type: 'user', content: query, isCode: false }]);
+    setIsTyping(true);
+    
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: 'ai', 
+        content: `Here is a detailed explanation for your query: "${query}"\n\nTo fix this issue, you should update your configuration settings...` 
+      }]);
+      setIsTyping(false);
+    }, 1500);
+  }
+
   return (
     <div className="flex flex-col h-full w-full bg-background relative">
       {isLoadingChat ? (
@@ -159,54 +191,66 @@ export default function Dashboard() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col h-full w-full relative overflow-hidden">
-          <div 
-            className="absolute inset-0 overflow-y-scroll overscroll-y-none scrollbar-thin" 
-            ref={containerRef}
-            onScroll={handleScroll}
-          >
-            <div className="pt-8 pb-40">
-              <div className="max-w-3xl mx-auto w-full px-4 space-y-8">
-              {messages.map((msg, index) => (
-                <div key={index} className="flex flex-col">
-                  {msg.type === 'user' ? (
-                    <div className="self-end bg-surface px-5 py-3.5 rounded-3xl rounded-tr-sm max-w-[85%] text-primary-text shadow-sm">
-                      {msg.isCode ? (
-                        <pre className="text-sm font-mono whitespace-pre-wrap">{msg.content}</pre>
-                      ) : (
-                        <p className="whitespace-pre-wrap">{msg.content}</p>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="self-start w-full">
-                      <ChatMessage content={msg.content} />
-                    </div>
-                  )}
-                </div>
-              ))}
-              {isTyping && (
-                <div className="self-start text-secondary-text flex items-center space-x-2 mt-4">
-                  <Loader2 className="animate-spin" size={20} />
-                </div>
-              )}
-              <div ref={messagesEndRef} className="h-4" />
+        <div className="flex flex-row h-full w-full relative overflow-hidden">
+          
+          {/* Chat Column */}
+          <div ref={chatColumnRef} className="h-full relative overflow-hidden shrink-0" style={{ width: '100%' }}>
+            <div 
+              className="absolute inset-0 overflow-y-scroll overscroll-y-none scrollbar-thin" 
+              ref={containerRef}
+              onScroll={handleScroll}
+            >
+              <div className="pt-8 pb-40">
+                <div className="max-w-3xl mx-auto w-full px-4 space-y-8">
+                {messages.map((msg, index) => (
+                  <div key={index} className="flex flex-col">
+                    {msg.type === 'user' ? (
+                      <div className="self-end bg-surface px-5 py-3.5 rounded-3xl rounded-tr-sm max-w-[85%] text-primary-text shadow-sm">
+                        {msg.isCode ? (
+                          <pre className="text-sm font-mono whitespace-pre-wrap">{msg.content}</pre>
+                        ) : (
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="self-start w-full">
+                        <ChatMessage content={msg.content} />
+                        {msg.hasArtifact && !showArtifact && (
+                          <button 
+                            onClick={() => setShowArtifact(true)}
+                            className="mt-4 ml-12 flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-secondary-text hover:text-primary-text hover:border-border-hover transition-colors shadow-sm"
+                          >
+                            <FileText size={16} className="text-accent" />
+                            View Deep Analysis Report
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="self-start text-secondary-text flex items-center space-x-2 mt-4 ml-12">
+                    <Loader2 className="animate-spin" size={20} />
+                  </div>
+                )}
+                <div ref={messagesEndRef} className="h-4" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer avoids covering the 14px scrollbar on the right */}
-        <div className="absolute bottom-0 left-0 right-[14px] pt-10 pb-6 bg-gradient-to-t from-background via-background to-transparent z-10 pointer-events-none">
-            <div className="max-w-3xl mx-auto px-4 relative pointer-events-auto">
-              {showScrollButton && (
-                <button 
-                  onClick={scrollToBottom}
-                  className="absolute -top-14 left-1/2 -translate-x-1/2 p-2 bg-surface border border-border rounded-full text-secondary-text hover:text-primary-text transition-colors shadow-lg z-20"
-                >
-                  <ArrowDown size={16} />
-                </button>
-              )}
-              
-              <div className="relative flex items-center bg-surface rounded-full shadow-md">
+          {/* Footer avoids covering the 14px scrollbar on the right */}
+          <div className="absolute bottom-0 left-0 right-[14px] pt-10 pb-6 bg-gradient-to-t from-background via-background to-transparent z-10 pointer-events-none">
+              <div className="max-w-3xl mx-auto px-4 relative pointer-events-auto">
+                {showScrollButton && (
+                  <button 
+                    onClick={scrollToBottom}
+                    className="absolute -top-14 left-1/2 -translate-x-1/2 p-2 bg-surface border border-border rounded-full text-secondary-text hover:text-primary-text transition-colors shadow-lg z-20"
+                  >
+                    <ArrowDown size={16} />
+                  </button>
+                )}
+                
+                <div className="relative flex items-center bg-surface rounded-full shadow-md">
                 <Popover>
                   <PopoverTrigger className="pl-4 pr-3 py-3 text-secondary-text hover:text-primary-text transition-colors cursor-pointer outline-none flex items-center justify-center">
                     <div className="p-1 rounded-full bg-sidebar border border-border flex items-center justify-center shadow-sm">
@@ -269,6 +313,16 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+          </div> {/* End of Chat Column */}
+
+          <div 
+            ref={artifactColumnRef} 
+            className="h-full shrink-0 bg-background border-l border-border/50 z-20" 
+            style={{ width: '0%', opacity: 0, visibility: 'hidden', transform: 'translateX(50px)' }}
+          >
+            <AnalysisArtifact data={artifactData} onClose={() => setShowArtifact(false)} onAskAI={handleAskAI} />
+          </div>
+
         </div>
       )}
     </div>

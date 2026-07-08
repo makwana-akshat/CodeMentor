@@ -34,3 +34,34 @@ No critical bugs were found in this snippet. However, error handling is absent.
 ### Analogy
 Think of the Express server as a receptionist at a building. When someone arrives at the front desk (the root URL \`/\`), the receptionist says 'Hello World!'. The server simply waits (listens) for people to arrive.
 `
+
+export const dummyAnalysisData = {
+  bugs: [
+    { title: "No error handling", description: "The route does not catch asynchronous errors.", severity: "warning" },
+    { title: "Hardcoded port", description: "Port 3000 is hardcoded instead of using environment variables.", severity: "info" }
+  ],
+  security: [
+    { title: "Missing CORS", description: "Cross-Origin Resource Sharing is not configured.", severity: "high" },
+    { title: "Helmet missing", description: "Security headers are not set.", severity: "medium" }
+  ],
+  complexity: {
+    time: "O(1)",
+    space: "O(1)",
+    description: "The route operates in constant time as it simply returns a static string."
+  },
+  smells: [
+    { title: "Global state", description: "The app instance is in the global scope." }
+  ],
+  best_practices: [
+    { title: "Use Environment Variables", description: "Define PORT in a .env file." },
+    { title: "Use a Router", description: "Extract routes into a separate Express Router file." }
+  ],
+  optimizations: [
+    { title: "Extract logic", description: "Move the response string to a controller function." }
+  ],
+  learning: [
+    { title: "Express Routing", url: "https://expressjs.com/en/guide/routing.html" },
+    { title: "Security Best Practices", url: "https://expressjs.com/en/advanced/best-practice-security.html" }
+  ],
+  flow: "Client Request -> Express App -> GET / Route Handler -> Response"
+}
