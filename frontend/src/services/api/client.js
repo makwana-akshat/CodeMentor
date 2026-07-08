@@ -9,10 +9,29 @@ const apiClient = axios.create({
   },
 });
 
+let tokenProvider = null;
+let logoutHandler = null;
+
+export const setTokenProvider = (provider) => {
+  tokenProvider = provider;
+};
+
+export const setLogoutHandler = (handler) => {
+  logoutHandler = handler;
+};
+
 // Request interceptor to automatically attach the Clerk JWT token
 apiClient.interceptors.request.use(async (config) => {
-  // window.Clerk is injected by the ClerkProvider
-  if (window.Clerk && window.Clerk.session) {
+  if (tokenProvider) {
+    try {
+      const token = await tokenProvider();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error("Error fetching token from provider:", error);
+    }
+  } else if (window.Clerk && window.Clerk.session) {
     try {
       const token = await window.Clerk.session.getToken();
       if (token) {
@@ -33,18 +52,21 @@ apiClient.interceptors.response.use((response) => {
 }, (error) => {
   if (error.response && error.response.status === 401) {
     console.error("Unauthorized access or expired token.");
-    // Optionally trigger a logout or redirect here if needed
+    if (logoutHandler) {
+      logoutHandler();
+    }
   }
   return Promise.reject(error);
 });
 
 export const createApiClient = () => {
-  // Kept for backwards compatibility if needed, but we recommend using the default exported apiClient directly now.
+  const getHeaders = (token) => token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  
   return {
-    explainCode: (data) => apiClient.post('/explain', data),
-    chat: (data) => apiClient.post('/chat', data),
-    history: () => apiClient.get('/history'),
-    documentation: (data) => apiClient.post('/docs', data),
+    explainCode: (data, token) => apiClient.post('/explain', data, getHeaders(token)),
+    chat: (data, token) => apiClient.post('/chat', data, getHeaders(token)),
+    history: (token) => apiClient.get('/history', getHeaders(token)),
+    documentation: (data, token) => apiClient.post('/docs', data, getHeaders(token)),
   };
 };
 

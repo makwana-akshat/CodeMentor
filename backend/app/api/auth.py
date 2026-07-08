@@ -55,3 +55,18 @@ async def sync_user(
         "message": "User synced successfully",
         "user": new_user
     }
+
+@router.get("/me", response_model=Dict[str, Any])
+async def get_me(current_user: dict = Depends(get_current_user)):
+    """
+    Get the current authenticated user's profile information.
+    """
+    clerk_user_id = current_user.get("sub")
+    if not clerk_user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user = user_repo.get_user_by_clerk_id(clerk_user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user

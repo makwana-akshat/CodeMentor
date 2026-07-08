@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import CodeInput from '../components/CodeInput'
 import { dummyAIResponse, dummyAnalysisData } from '../utils/dummyData'
+import { createApiClient } from '../services/api/client'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ArrowUp, ArrowDown, Paperclip, Mic, Loader2, Code, Bug, Wrench, Plus, FileText } from 'lucide-react'
@@ -117,16 +118,60 @@ export default function Dashboard() {
     }
   }, [showArtifact])
 
-  const handleCodeSubmit = ({ code, language, level }) => {
-    setMessages([...messages, { type: 'user', content: code, isCode: true }])
-    setIsTyping(true)
+  const handleCodeSubmit = async ({ code, language, level }) => {
+    setMessages(prev => [...prev, { type: 'user', content: code, isCode: true }]);
+    setIsTyping(true);
     
-    setTimeout(() => {
-      setMessages(prev => [...prev, { type: 'ai', content: dummyAIResponse, hasArtifact: true }])
-      setArtifactData(dummyAnalysisData)
-      setShowArtifact(true)
-      setIsTyping(false)
-    }, 1500)
+    try {
+      const api = createApiClient();
+      const response = await api.explainCode({ code, language, level: level || "Intermediate" });
+      const apiData = response.data.data;
+      
+      const aiContent = `
+${apiData.summary || ''}
+
+### Line-by-Line Explanation
+${apiData.line_by_line ? apiData.line_by_line.map(line => `**Line ${line.line}**: ${line.explanation}`).join('\\n') : ''}
+
+### Bug Detection
+${apiData.bug_detection || 'No critical bugs found.'}
+
+### Complexity
+${apiData.complexity || 'N/A'}
+
+### Best Practices
+${apiData.best_practices ? apiData.best_practices.map(bp => `- ${bp}`).join('\\n') : ''}
+
+### Analogy
+${apiData.analogy || ''}
+      `;
+
+      const analysisResults = apiData.analysis_results || {};
+      
+      const artifactData = {
+        bugs: (analysisResults.bugs || []).map(b => ({ title: b.type, description: b.description, severity: b.severity })),
+        security: (analysisResults.security || []).map(s => ({ title: s.vulnerability, description: s.description, severity: s.severity })),
+        complexity: {
+          time: analysisResults.time_complexity?.O_notation || 'N/A',
+          space: analysisResults.space_complexity?.O_notation || 'N/A',
+          description: analysisResults.time_complexity?.explanation || ''
+        },
+        smells: (analysisResults.code_smells || []).map(s => ({ title: 'Code Smell', description: s })),
+        best_practices: (analysisResults.best_practices || []).map(b => ({ title: 'Best Practice', description: b })),
+        optimizations: (analysisResults.optimizations || []).map(o => ({ title: o.reason, description: o.suggestion })),
+        learning: (analysisResults.learning_recommendations || []).map(l => ({ title: l.topic, url: '#', description: l.explanation })),
+        flow: (analysisResults.execution_flow || []).join('\\n')
+      };
+
+      setMessages(prev => [...prev, { type: 'ai', content: aiContent.trim(), hasArtifact: true }]);
+      setArtifactData(artifactData);
+      setShowArtifact(true);
+    } catch (error) {
+      console.error("Failed to explain code:", error);
+      setMessages(prev => [...prev, { type: 'ai', content: "Sorry, I encountered an error while analyzing your code. Please try again or check your backend connection." }]);
+    } finally {
+      setIsTyping(false);
+    }
   }
 
   const handleFollowUpSubmit = (e) => {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useUser, useAuth, useClerk } from '@clerk/clerk-react';
-import apiClient from '../services/api/client';
+import apiClient, { setTokenProvider, setLogoutHandler } from '../services/api/client';
 
 const AuthContext = createContext();
 
@@ -14,25 +14,23 @@ export const AuthProvider = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
 
+  // Inject auth handlers into global API client
+  useEffect(() => {
+    setTokenProvider(getToken);
+    setLogoutHandler(() => signOut());
+  }, [getToken, signOut]);
+
   // Sync user to backend on successful login
   useEffect(() => {
     const syncUser = async () => {
       if (isSignedIn && user && !hasSynced && !isSyncing) {
         try {
           setIsSyncing(true);
-          // Get the JWT token specifically to pass to the sync endpoint
-          // apiClient interceptors should also automatically attach this if configured properly
-          const token = await getToken();
-          
           await apiClient.post('/auth/sync', {
             email: user.primaryEmailAddress?.emailAddress || "",
             first_name: user.firstName || "",
             last_name: user.lastName || "",
             profile_image: user.imageUrl || ""
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
           });
           
         } catch (error) {

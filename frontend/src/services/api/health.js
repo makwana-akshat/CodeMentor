@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 // 4.1 checkHealth function
 export const checkHealth = async () => {
   // The health endpoint on the backend is at the root, not /api/v1
-  const response = await apiClient.get('/health', { baseURL: import.meta.env.VITE_API_URL });
+  const response = await apiClient.get('/health', { baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000' });
   return response.data;
 };
 
