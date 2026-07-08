@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useUser, useAuth, useClerk } from '@clerk/clerk-react';
-import apiClient from '../services/api';
+import apiClient from '../services/api/client';
 
 const AuthContext = createContext();
 

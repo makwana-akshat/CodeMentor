@@ -9,8 +9,10 @@ import ChatMessage from '../components/ChatMessage'
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover'
 import ChatSkeleton from '../components/ChatSkeleton'
 import AnalysisArtifact from '../components/AnalysisArtifact'
+import { useHealthCheck } from '../services/api/health'
 
 export default function Dashboard() {
+  const { data: healthData, isError: isHealthError } = useHealthCheck()
   const { chatId } = useParams()
   const [messages, setMessages] = useState([])
   const [isTyping, setIsTyping] = useState(false)
@@ -308,8 +310,12 @@ export default function Dashboard() {
                   </div>
                 </form>
               </div>
-              <div className="text-center mt-2 text-xs text-secondary-text">
-                CodeMentor AI can make mistakes. Consider verifying important information.
+              <div className="text-center mt-2 text-xs text-secondary-text flex items-center justify-center space-x-2">
+                <span>CodeMentor AI can make mistakes. Consider verifying important information.</span>
+                <span className="flex items-center ml-4" title={isHealthError ? "Backend API is unreachable" : (healthData ? "API connected" : "Connecting to API...")}>
+                  <span className={`w-2 h-2 rounded-full mr-1.5 ${isHealthError ? 'bg-red-500' : (healthData ? 'bg-green-500' : 'bg-yellow-500 animate-pulse')}`}></span>
+                  {isHealthError ? 'API Offline' : (healthData ? 'API Online' : 'Connecting...')}
+                </span>
               </div>
             </div>
           </div>
