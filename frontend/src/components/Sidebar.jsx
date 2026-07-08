@@ -1,15 +1,17 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { MessageSquare, Plus, Search, Settings, X, MoreHorizontal, PenSquare, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { MessageSquare, Plus, Search, Settings, X, MoreHorizontal, PenSquare, PanelLeftClose, PanelLeftOpen, Sun, Moon } from 'lucide-react'
 import { useAuth, UserButton, useUser } from '@clerk/clerk-react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function Sidebar({ isOpen, close, toggle }) {
   const { isSignedIn } = useAuth()
   const { user } = useUser()
   const sidebarRef = useRef(null)
   const contentRef = useRef(null)
+  const { theme, toggleTheme } = useTheme()
 
   const isDesktop = window.innerWidth >= 768;
 
@@ -68,19 +70,22 @@ export default function Sidebar({ isOpen, close, toggle }) {
       >
         {/* Desktop Collapsed View */}
         <div className={`hidden md:flex flex-col h-full w-[68px] items-center py-3 absolute top-0 left-0 transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 delay-100'}`}>
-            <button onClick={toggle} className="p-2 text-secondary-text hover:text-primary-text hover:bg-[#2A2B32] rounded-lg transition-colors mb-3" title="Open sidebar">
+            <button onClick={toggle} className="p-2 text-secondary-text hover:text-primary-text hover:bg-surface-hover rounded-lg transition-colors mb-3" title="Open sidebar">
               <PanelLeftOpen size={20} />
             </button>
-            <NavLink to="/" className="p-2 text-secondary-text hover:text-primary-text hover:bg-[#2A2B32] rounded-lg transition-colors mb-2" title="New chat">
+            <NavLink to="/" className="p-2 text-secondary-text hover:text-primary-text hover:bg-surface-hover rounded-lg transition-colors mb-2" title="New chat">
               <Plus size={20} />
             </NavLink>
-            <button className="p-2 text-secondary-text hover:text-primary-text hover:bg-[#2A2B32] rounded-lg transition-colors mb-2" title="Search">
+            <button className="p-2 text-secondary-text hover:text-primary-text hover:bg-surface-hover rounded-lg transition-colors mb-2" title="Search">
               <Search size={20} />
             </button>
-            <button onClick={toggle} className="p-2 text-secondary-text hover:text-primary-text hover:bg-[#2A2B32] rounded-lg transition-colors mb-2" title="History">
+            <button onClick={toggle} className="p-2 text-secondary-text hover:text-primary-text hover:bg-surface-hover rounded-lg transition-colors mb-2" title="History">
               <MessageSquare size={20} />
             </button>
             
+            <button onClick={toggleTheme} className="p-2 text-secondary-text hover:text-primary-text hover:bg-surface-hover rounded-lg transition-colors mb-2" title="Toggle theme">
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <div className="mt-auto p-2">
                <UserButton appearance={{ elements: { userButtonAvatarBox: "w-8 h-8" } }} />
             </div>
@@ -103,7 +108,7 @@ export default function Sidebar({ isOpen, close, toggle }) {
             </button>
             <button 
               onClick={toggle}
-              className="hidden md:flex p-1.5 text-secondary-text hover:text-primary-text hover:bg-[#2A2B32] rounded-lg transition-colors"
+              className="hidden md:flex p-1.5 text-secondary-text hover:text-primary-text hover:bg-surface-hover rounded-lg transition-colors"
               title="Close sidebar"
             >
               <PanelLeftClose size={20} />
@@ -114,7 +119,7 @@ export default function Sidebar({ isOpen, close, toggle }) {
             <NavLink
               to="/"
               onClick={() => window.innerWidth < 768 && close()}
-              className="flex-1 flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors font-medium text-primary-text hover:bg-[#2A2B32] group"
+              className="flex-1 flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors font-medium text-primary-text hover:bg-surface-hover group"
             >
               <div className="flex items-center space-x-3">
                 <div className="bg-primary-text text-background p-1 rounded-full">
@@ -127,7 +132,7 @@ export default function Sidebar({ isOpen, close, toggle }) {
           </div>
 
           <div className="px-3 pb-2">
-            <button className="flex items-center space-x-3 px-3 py-2.5 w-full rounded-lg transition-colors text-sm font-medium text-primary-text hover:bg-[#2A2B32]">
+            <button className="flex items-center space-x-3 px-3 py-2.5 w-full rounded-lg transition-colors text-sm font-medium text-primary-text hover:bg-surface-hover">
               <Search size={18} className="text-secondary-text" />
               <span>Search chats</span>
             </button>
@@ -141,7 +146,7 @@ export default function Sidebar({ isOpen, close, toggle }) {
                   key={item.id}
                   to={`/c/${item.id}`}
                   onClick={() => window.innerWidth < 768 && close()}
-                  className="history-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-sm text-primary-text hover:bg-[#2A2B32]"
+                  className="history-item flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 text-sm text-primary-text hover:bg-surface-hover hover:translate-x-1"
                 >
                   <span className="truncate">{item.title}</span>
                 </NavLink>
@@ -150,7 +155,7 @@ export default function Sidebar({ isOpen, close, toggle }) {
           </div>
 
           <div className="p-3">
-            <div className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#2A2B32] transition-colors cursor-pointer">
+            <div className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-surface-hover transition-colors cursor-pointer">
               <div className="flex items-center space-x-3">
                 <UserButton appearance={{ elements: { userButtonAvatarBox: "w-8 h-8" } }} />
                 <div className="flex flex-col">
@@ -158,7 +163,15 @@ export default function Sidebar({ isOpen, close, toggle }) {
                   {user?.lastName && <span className="text-xs text-secondary-text leading-tight">{user.lastName}</span>}
                 </div>
               </div>
-              <MoreHorizontal size={18} className="text-secondary-text" />
+              <div className="flex items-center space-x-1">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
+                  className="p-1.5 text-secondary-text hover:text-primary-text hover:bg-surface rounded-md transition-colors"
+                >
+                  {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                </button>
+                <MoreHorizontal size={18} className="text-secondary-text" />
+              </div>
             </div>
           </div>
         </div>

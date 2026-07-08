@@ -8,16 +8,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0D1117',
-        sidebar: '#161B22',
-        cards: '#21262D',
-        accent: '#10A37F',
-        border: '#30363D',
-        'primary-text': '#F0F6FC',
-        'secondary-text': '#8B949E',
+        background: 'var(--cm-bg-main)',
+        sidebar: 'var(--cm-bg-sidebar)',
+        cards: 'var(--cm-bg-cards)',
+        accent: 'var(--cm-accent)',
+        border: 'var(--cm-border)',
+        'primary-text': 'var(--cm-primary-text)',
+        'secondary-text': 'var(--cm-secondary-text)',
+        surface: 'var(--cm-surface)',
+        'surface-hover': 'var(--cm-surface-hover)',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
       },
     },
   },

@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, Terminal } from 'lucide-react'
 import Mermaid from './Mermaid'
 
-export default function ChatMessage({ content }) {
+const ChatMessage = ({ content }) => {
   return (
     <div className="w-full text-primary-text leading-relaxed">
       <ReactMarkdown
@@ -22,7 +22,7 @@ export default function ChatMessage({ content }) {
               return <CodeBlock language={language} code={codeString} />
             }
             return (
-              <code className="bg-[#2A2B32] px-1.5 py-0.5 rounded-md text-sm font-mono text-accent" {...props}>
+              <code className="bg-surface px-1.5 py-0.5 rounded-md text-sm font-mono text-accent" {...props}>
                 {children}
               </code>
             )
@@ -44,6 +44,8 @@ export default function ChatMessage({ content }) {
   )
 }
 
+export default React.memo(ChatMessage)
+
 function CodeBlock({ language, code }) {
   const [copied, setCopied] = useState(false)
 
@@ -54,9 +56,12 @@ function CodeBlock({ language, code }) {
   }
 
   return (
-    <div className="my-4 rounded-xl overflow-hidden bg-[#0D1117] border border-border">
-      <div className="flex items-center justify-between px-4 py-2 bg-[#161B22] border-b border-border text-xs text-secondary-text">
-        <span className="font-mono">{language}</span>
+    <div className="my-4 rounded-xl overflow-hidden bg-background border border-border hover:border-accent/50 transition-all duration-300 shadow-sm">
+      <div className="flex items-center justify-between px-4 py-2 bg-sidebar border-b border-border text-xs text-secondary-text">
+        <div className="flex items-center space-x-2">
+          <Terminal size={14} className="text-secondary-text" />
+          <span className="font-mono uppercase tracking-wider">{language}</span>
+        </div>
         <button 
           onClick={handleCopy}
           className="flex items-center space-x-1.5 hover:text-primary-text transition-colors"

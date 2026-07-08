@@ -51,8 +51,8 @@ function AnimatedCodeHero() {
         Your Pro-Max AI pair programmer. Understand, refactor, and visualize complex architectures in seconds.
       </p>
       
-      <div className="bg-[#161B22] border border-border rounded-xl shadow-2xl overflow-hidden">
-        <div className="flex items-center px-4 py-3 bg-[#0D1117] border-b border-border">
+      <div className="bg-sidebar border border-border rounded-xl shadow-2xl overflow-hidden">
+        <div className="flex items-center px-4 py-3 bg-background border-b border-border">
           <div className="flex space-x-2">
             <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
             <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
