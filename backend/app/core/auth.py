@@ -38,7 +38,8 @@ def verify_clerk_token(credentials: HTTPAuthorizationCredentials = Security(secu
             algorithms=["RS256"],
             # Clerk doesn't typically require audience verification for the session token by default, 
             # but we pass options to disable it if necessary, or specify the frontend origin.
-            options={"verify_audience": False}
+            options={"verify_audience": False},
+            leeway=60 # Add a 60 second leeway to account for clock skew on local development machines
         )
         
         clerk_user_id = payload.get("sub")
@@ -47,11 +48,14 @@ def verify_clerk_token(credentials: HTTPAuthorizationCredentials = Security(secu
             
         return payload
 
-    except jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError as e:
+        print(f"JWT Error: Token expired: {str(e)}")
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError as e:
+        print(f"JWT Error: Invalid token: {str(e)}")
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
     except Exception as e:
+        print(f"JWT Error: Unknown exception: {str(e)}")
         raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 def get_current_user(token_payload: dict = Depends(verify_clerk_token)) -> str:

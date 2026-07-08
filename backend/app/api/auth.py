@@ -45,7 +45,7 @@ async def sync_user(
         "profile_image": request.profile_image
     }
     
-    new_user = user_repo.create_user(user_data)
+    new_user = user_repo.create(user_data)
     if not new_user:
         # Note: If Supabase table isn't created yet, this will fail gracefully and return a mock error
         return {"status": "error", "message": "Failed to sync user to database. Please ensure Supabase tables are created."}
